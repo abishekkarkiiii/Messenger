@@ -1,9 +1,7 @@
 package Software.Messenger.Entity;
 
 import lombok.Data;
-import org.springframework.data.mongodb.core.mapping.DBRef;
 
-import java.util.List;
 
 @Data
 public class FriendRequest {

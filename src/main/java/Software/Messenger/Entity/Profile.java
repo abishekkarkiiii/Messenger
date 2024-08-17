@@ -19,6 +19,5 @@ public class Profile {
     private List<String> RequestList=new ArrayList<>();
     private List<String> FriendList=new ArrayList<>();
     private List <String> Friendcode=new ArrayList<>();
-
-
+    private String image;
 }

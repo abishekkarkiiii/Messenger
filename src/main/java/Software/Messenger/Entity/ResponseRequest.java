@@ -9,5 +9,6 @@ public class ResponseRequest {
     private String username;
     private String userId;
     private String ReceiverUserId;
+    private String image;
 
 }

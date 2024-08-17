@@ -96,6 +96,7 @@ public class ProfileController {
             ResponseRequest virtualResponse=new ResponseRequest();
             virtualResponse.setUsername( profileModel.profileFinder(new ObjectId(s)).getUsername());
             virtualResponse.setUserId( profileModel.profileFinder(new ObjectId(s)).getUserId());
+            virtualResponse.setImage(profileModel.profileFinder(new ObjectId(s)).getImage());
             responseRequests.add(virtualResponse);
         }
         return  responseRequests;
@@ -106,6 +107,20 @@ public class ProfileController {
     public void deletefriend (ResponseRequest request){
         System.out.println(request);
         profileModel.deletefriend(request);
+    }
+
+
+    @PostMapping("profiledataupload")
+    public Profile profileimageuploader(@RequestBody Profile profile){
+        Profile VirtualProfile=profileModel.profileFinder(new ObjectId(profile.getUserId()));
+        VirtualProfile.setImage(profile.getImage());
+        return profileModel.profileSaver(VirtualProfile);
+    }
+
+    @PostMapping("profiledata")
+    public Profile profiledata(@RequestBody Profile profile){
+        Profile VirtualProfile=profileModel.profileFinder(new ObjectId(profile.getUserId()));
+        return profileModel.profileSaver(VirtualProfile);
     }
 
 }

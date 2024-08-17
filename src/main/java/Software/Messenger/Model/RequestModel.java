@@ -57,6 +57,7 @@ public class RequestModel {
             ResponseRequest responseRequest = new ResponseRequest();
             responseRequest.setUserId(profile.getUserId());
             responseRequest.setUsername(profile.getUsername());
+            responseRequest.setImage(profile.getImage());
             requestList.add(responseRequest);
         }
 

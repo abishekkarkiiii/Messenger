@@ -29,12 +29,10 @@ public class MainController {
     @MessageMapping("/app")
     public Message message(Message message) {
         Profile profile=profileModel.profileFinder(new ObjectId(message.getMessageId())) ;
-        System.out.println();
         if(message.getSender()==null){
            message.setSender(profile.getUsername());//1
         }
         chatModel.messagesSave(message);
-        System.out.println(message);
         simpMessagingTemplate.convertAndSend("/chat/"+chatModel.usercode(profile,profileModel.profileFinder(new ObjectId(message.getAddress()))).get(),message);
         simpMessagingTemplate.convertAndSend("/chat/"+profile.getUserId(),message);
         return message;
@@ -47,15 +45,15 @@ public class MainController {
         return message;
     }
 
-    @MessageMapping("/file")// for image
-    @SendTo("/chat/chat")
-    public MessageDetails file(MessageDetails file){
-        String imgdata=file.getContent();
-        Message message=new Message();
-        message.setContent(imgdata);
-        chatModel.messagesSave(message);
-        return file;
-    }
+//    @MessageMapping("/file")// for image
+//    @SendTo("/chat/chat")
+//    public MessageDetails file(MessageDetails file){
+//        String imgdata=file.getContent();
+//        Message message=new Message();
+//        message.setContent(imgdata);
+//        chatModel.messagesSave(message);
+//        return file;
+//    }
 
     @PostMapping("allmessage")
     public List <Message> getall(@RequestBody ResponseRequest request){
@@ -68,15 +66,6 @@ public class MainController {
         System.out.println(request);
        return chatModel.usercode(profileModel.profileFinder(new ObjectId(request.getUserId())),profileModel.profileFinder(new ObjectId(request.getReceiverUserId()))).get();
     }
-
-
-
-
-
-
-
-
-
 
 
 

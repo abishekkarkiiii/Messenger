@@ -127,4 +127,9 @@ public class ProfileModel {
         return requestList;
     }
 
+    public Profile profileSaver(Profile profile)
+    {
+       return profileRepo.save(profile);
+    }
+
 }
