@@ -10,5 +10,7 @@ public class ResponseRequest {
     private String userId;
     private String ReceiverUserId;
     private String image;
+    private String bio;
+    private String about;
 
 }

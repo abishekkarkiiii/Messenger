@@ -125,6 +125,17 @@
             cursor: pointer;
             transition: background-color 0.3s ease;
         }
+
+        .user-card .inspect-friend-btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+                margin-left: 13px;
+        }
         .user-card .add-friend-btn:hover {
             background-color: #0056b3;
         }
@@ -458,32 +469,57 @@
     friendRequestsContainer.appendChild(userCard);
 }
 
-    function createUserCard(user) {
-        const userCard = document.createElement("div");
-        userCard.className = "user-card";
+function createUserCard(user) {
+    const userCard = document.createElement("div");
+    userCard.className = "user-card";
 
-        const userImg = document.createElement("img");
-        userImg.src = user.image;
-        userImg.alt = "User Avatar";
+    const userImg = document.createElement("img");
+    userImg.src = user.image;
+    userImg.alt = "User Avatar";
 
-        const userInfo = document.createElement("div");
-        userInfo.className = "user-info";
+    const userInfo = document.createElement("div");
+    userInfo.className = "user-info";
 
-        const userName = document.createElement("h5");
-        userName.textContent = user.username;
+    const userName = document.createElement("h5");
+    userName.textContent = user.username;
 
-        const addFriendButton = document.createElement("button");
-        addFriendButton.className = "add-friend-btn";
-        addFriendButton.textContent = "Add Friend";
-        addFriendButton.onclick = () => addFriend(user.userId);
+    // Add Friend button
+    const addFriendButton = document.createElement("button");
+    addFriendButton.className = "add-friend-btn";
+    addFriendButton.textContent = "Add Friend";
+    addFriendButton.onclick = () => addFriend(user.userId);
 
-        userInfo.appendChild(userName);
-        userCard.appendChild(userImg);
-        userCard.appendChild(userInfo);
-        userCard.appendChild(addFriendButton);
+    // Inspect button to view the profile
+    const inspectButton = document.createElement("button");
+    inspectButton.className = "inspect-friend-btn";
+    inspectButton.textContent = "Inspect";
+    inspectButton.onclick = () =>{
+   
+        if(user.userId){
+            localStorage.setItem('userId',user.userId)
+            location.href = `inspectionprofile.html`;
+        }
+   
 
-        return userCard;
-    }
+    } 
+
+    // Append elements
+    userInfo.appendChild(userName);
+    userCard.appendChild(userImg);
+    userCard.appendChild(userInfo);
+
+    // Create a button container to hold both buttons
+    const buttonContainer = document.createElement("div");
+    buttonContainer.className = "button-container";
+
+    buttonContainer.appendChild(addFriendButton);
+    buttonContainer.appendChild(inspectButton);
+
+    userCard.appendChild(buttonContainer);
+
+    return userCard;
+}
+
 
     function fetchOldRequest(requestList) {
         fetch("profile/getFriendRequest", {

@@ -29,7 +29,7 @@ public class ProfileController {
     UserModel userModel;
 
     @PostMapping
-    public List< Profile> Attacher( @RequestBody FriendRequest friendRequest){
+    public List<Profile> Attacher(@RequestBody FriendRequest friendRequest) {
 
         return profileModel.getAllProfile(userModel.finduserAccount(new ObjectId(friendRequest.getUserId())));
     }
@@ -38,18 +38,18 @@ public class ProfileController {
     RequestModel requestModel;
 
     @PostMapping("getcurrentprofile")
-    public String profile(@RequestBody FriendRequest currentuserId){
+    public String profile(@RequestBody FriendRequest currentuserId) {
         System.out.println(currentuserId.getUserId());
         return userModel.finduserAccount(new ObjectId(currentuserId.getUserId())).getProfile().getUserId();
     }
 
     @MessageMapping("/profile/add_friend")
-    public void request(FriendRequest request){
+    public void request(FriendRequest request) {
         System.out.println("ada");
         System.out.println(request);
-        Profile userProfile=profileModel.profileFinder(new ObjectId(request.getUserId()));
-        if(profileModel.requestadd(request.getUserId(),request.getUserprofileId()))
-            simpMessagingTemplate.convertAndSend("/chat/"+request.getUserprofileId(),userProfile);
+        Profile userProfile = profileModel.profileFinder(new ObjectId(request.getUserId()));
+        if (profileModel.requestadd(request.getUserId(), request.getUserprofileId()))
+            simpMessagingTemplate.convertAndSend("/chat/" + request.getUserprofileId(), userProfile);
     }
 
 
@@ -61,8 +61,8 @@ public class ProfileController {
         for (String userId : requestList) {
             Profile profile = profileModel.profileFinder(new ObjectId(userId));
             profile.setUsername(profile.getUsername());
-            profile.setRequestList(profile.getRequestList().stream().map(x->{
-                return  x="";
+            profile.setRequestList(profile.getRequestList().stream().map(x -> {
+                return x = "";
             }).collect(Collectors.toList()));
             virtualprofile.add(profile);
         }
@@ -72,7 +72,7 @@ public class ProfileController {
 
 
     @PostMapping("/accept")
-    public void  requestAccept(@RequestBody FriendRequest request) {
+    public void requestAccept(@RequestBody FriendRequest request) {
 
         Profile requestSender = profileModel.profileFinder(new ObjectId(request.getUserId()));
         Profile requestReceiver = profileModel.profileFinder(new ObjectId(request.getUserprofileId()));
@@ -80,7 +80,7 @@ public class ProfileController {
     }
 
     @MessageMapping("/accept")
-    public void RequestAccept(FriendRequest request){
+    public void RequestAccept(FriendRequest request) {
         Profile requestSender = profileModel.profileFinder(new ObjectId(request.getUserId()));
         Profile requestReceiver = profileModel.profileFinder(new ObjectId(request.getUserprofileId()));
         requestModel.friendRequest(requestReceiver, requestSender);
@@ -88,39 +88,46 @@ public class ProfileController {
 
 
     @PostMapping("friendlist")
-    public List<ResponseRequest>friendlistsearcher(@RequestBody FriendRequest request)
-    {
-        List<ResponseRequest>responseRequests=new ArrayList<>();
-        List<String>friendlist= profileModel.profileFinder(new ObjectId(request.getUserId())).getFriendList();
+    public List<ResponseRequest> friendlistsearcher(@RequestBody FriendRequest request) {
+        List<ResponseRequest> responseRequests = new ArrayList<>();
+        List<String> friendlist = profileModel.profileFinder(new ObjectId(request.getUserId())).getFriendList();
         for (String s : friendlist) {
-            ResponseRequest virtualResponse=new ResponseRequest();
-            virtualResponse.setUsername( profileModel.profileFinder(new ObjectId(s)).getUsername());
-            virtualResponse.setUserId( profileModel.profileFinder(new ObjectId(s)).getUserId());
+            ResponseRequest virtualResponse = new ResponseRequest();
+            virtualResponse.setUsername(profileModel.profileFinder(new ObjectId(s)).getUsername());
+            virtualResponse.setUserId(profileModel.profileFinder(new ObjectId(s)).getUserId());
             virtualResponse.setImage(profileModel.profileFinder(new ObjectId(s)).getImage());
             responseRequests.add(virtualResponse);
         }
-        return  responseRequests;
+        return responseRequests;
     }
 
 
     @MessageMapping("/profile/delete")
-    public void deletefriend (ResponseRequest request){
+    public void deletefriend(ResponseRequest request) {
         System.out.println(request);
         profileModel.deletefriend(request);
     }
 
 
     @PostMapping("profiledataupload")
-    public Profile profileimageuploader(@RequestBody Profile profile){
-        Profile VirtualProfile=profileModel.profileFinder(new ObjectId(profile.getUserId()));
+    public Profile profileimageuploader(@RequestBody Profile profile) {
+        Profile VirtualProfile = profileModel.profileFinder(new ObjectId(profile.getUserId()));
+        System.out.println(profile);
         VirtualProfile.setImage(profile.getImage());
+        VirtualProfile.setBio(profile.getBio());
+        VirtualProfile.setAbout(profile.getAbout());
         return profileModel.profileSaver(VirtualProfile);
     }
 
     @PostMapping("profiledata")
-    public Profile profiledata(@RequestBody Profile profile){
-        Profile VirtualProfile=profileModel.profileFinder(new ObjectId(profile.getUserId()));
+    public Profile profiledata(@RequestBody Profile profile) {
+        Profile VirtualProfile = profileModel.profileFinder(new ObjectId(profile.getUserId()));
         return profileModel.profileSaver(VirtualProfile);
     }
 
+    @PostMapping("Inspection")
+    public ResponseRequest ProfileDataInspection(@RequestBody Profile profile) {
+        Profile VirtualProfile = profileModel.profileFinder(new ObjectId(profile.getUserId()));
+        return profileModel.profileDetail(VirtualProfile);
+    }
 }

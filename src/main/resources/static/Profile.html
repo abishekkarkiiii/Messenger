@@ -77,9 +77,6 @@
         }
 
         .profile-header {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
             margin-bottom: 20px;
         }
 
@@ -88,36 +85,37 @@
             width: 150px;
             height: 150px;
             object-fit: cover;
-            margin-bottom: 20px;
+            display: block;
+            margin: 0 auto;
         }
 
-        .upload-avatar {
-            border: 2px dashed #ccc;
-            padding: 10px;
-            border-radius: 50%;
-            width: 150px;
-            height: 150px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+        .upload-button {
+            margin-top: 10px;
+            background-color: #2ebf91;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
             cursor: pointer;
-            color: #555;
-            transition: background-color 0.3s, color 0.3s;
-            position: relative;
-            margin-top: 20px;
+            display: inline-block;
+        }
+        .upload-button-save {
+            margin-top: 10px;
+            background-color: #e24911;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: inline-block;
+            margin-left: 35%;
+        }
+        .upload-button:hover {
+            background-color: #249b7e;
         }
 
-        .upload-avatar:hover {
-            background-color: #f0f0f0;
-            color: #333;
-        }
-
-        .upload-avatar input[type="file"] {
+        .upload-button input[type="file"] {
             display: none;
-        }
-
-        .upload-avatar .upload-icon {
-            font-size: 2em;
         }
 
         .profile-header h2 {
@@ -181,62 +179,97 @@
     <!-- Profile Container -->
     <div class="profile-container">
         <div class="profile-header">
-            <img id="userAvatar" alt="User Avatar" style="display: none;">
+            <img id="userAvatar" alt="User Avatar">
             <h2 id="userName">User Name</h2>
             <p id="userBio" class="editable" contenteditable="true">User Bio</p>
-            <div class="upload-avatar" onclick="document.getElementById('uploadAvatar').click();">
-                <span class="upload-icon">+</span>
-                <input id="uploadAvatar" type="file" accept="image/*" onchange="previewProfilePic(event)">
-            </div>
+            <input id="uploadAvatar" type="file" accept="image/*" style="display: none;">
+            <!-- HTML for the upload button -->
+            <button class="upload-button" onclick="openFileInput()">Upload Profile Picture</button>
         </div>
         <div class="profile-content">
             <h3>About</h3>
             <p id="userAbout" class="editable" contenteditable="true">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis hendrerit sapien nec ipsum ultricies, a luctus arcu viverra. Fusce vehicula justo ut tortor lacinia, nec viverra magna viverra. Cras bibendum felis nec arcu tristique, eget interdum elit viverra.</p>
+            <button class="upload-button-save" onclick="saveProfileData()">Save Changes</button>
         </div>
     </div>
 
     <!-- JavaScript for Sidebar Toggle and Profile Picture Upload -->
     <script>
+        let selectedFile = null; // To track the selected file
+        let hasChanges = false; // To track if there are any changes
+
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
-            if (sidebar.style.left === '-250px') {
-                sidebar.style.left = '0';
-            } else {
-                sidebar.style.left = '-250px';
-            }
+            sidebar.style.left = sidebar.style.left === '-250px' ? '0' : '-250px';
         }
 
-        async function previewProfilePic(event) {
-            const file = event.target.files[0];
+        function openFileInput() {
+            document.getElementById('uploadAvatar').click(); // This will trigger the file input dialog
+        }
+
+        // Function to handle the file change event
+        async function handleFileChange(event) {
+            selectedFile = event.target.files[0]; // Store the selected file
+            hasChanges = true; // Indicate that there's a change
+        }
+
+        // Attach the change event to the file input
+        document.getElementById('uploadAvatar').addEventListener('change', handleFileChange);
+
+        async function uploadProfilePic() {
+            if (!selectedFile) return null; // Do nothing if no file is selected
+
             const reader = new FileReader();
-            reader.onload = async function() {
-                const userAvatar = document.getElementById('userAvatar');
-
-                let obj = {
-                    userId: localStorage.getItem('currentprofileId'),
-                    image: reader.result
+            return new Promise((resolve, reject) => {
+                reader.onload = async function() {
+                    try {
+                        const base64Image = reader.result;
+                         // Base64 string of the image
+                        resolve(base64Image); // Resolve the promise with the image data
+                        document.getElementById('userAvatar').src = base64Image;
+                    } catch (error) {
+                        reject(error); // Reject the promise in case of an error
+                    }
                 };
-                
-                try {
-                    let response = await fetch('/profile/profiledataupload', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(obj)
-                    });
-                    let data = await response.json();
-                    userAvatar.src = data.image;
-                    document.getElementById('userName').innerText = data.username;
-                    userAvatar.style.display = 'block';
-                } catch (error) {
-                    console.error('Error uploading profile picture:', error);
-                }
-            };
-            if (file) {
-                reader.readAsDataURL(file);
-            }
+                reader.readAsDataURL(selectedFile); // Start reading the file
+            });
         }
+
+        async function saveProfileData() {
+    let imageBase64 = null;
+
+    // Only get the base64 image data if a file was selected
+    if (selectedFile) {
+        imageBase64 = await uploadProfilePic();
+    }
+
+    // Fallback to the current image URL if no new image was selected
+    if (!imageBase64) {
+        imageBase64 = document.getElementById('userAvatar').src;
+    }
+
+    let obj = {
+        userId: localStorage.getItem('currentprofileId'),
+        bio: document.getElementById('userBio').innerText.trim(),
+        about: document.getElementById('userAbout').innerText.trim(),
+        image: imageBase64 // Include the image data (either new or existing)
+    };
+
+    try {
+        await fetch('/profile/profiledataupload', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(obj)
+        });
+        hasChanges = false; // Reset the change indicator
+    } catch (error) {
+        console.error('Error saving profile data:', error);
+    }
+}
+
+
 
         async function loadProfileData() {
             let obj = {
@@ -258,35 +291,12 @@
                 document.getElementById('userAbout').innerText = data.about || 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.';
                 document.getElementById('userAvatar').style.display = 'block';
             } catch (error) {
-                console.error('Error fetching profile data:', error);
+                console.error('Error loading profile data:', error);
             }
         }
 
-        // Save editable content on blur
-        document.querySelectorAll('.editable').forEach(element => {
-            element.addEventListener('blur', async function() {
-                let obj = {
-                    userId: localStorage.getItem('currentprofileId'),
-                    bio: document.getElementById('userBio').innerText,
-                    about: document.getElementById('userAbout').innerText
-                };
-                
-                try {
-                    await fetch('/profile/update', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(obj)
-                    });
-                } catch (error) {
-                    console.error('Error saving profile data:', error);
-                }
-            });
-        });
-
-        // Load profile data when the page loads
-        window.onload = loadProfileData;
+        // Call loadProfileData when the page is loaded
+        document.addEventListener('DOMContentLoaded', loadProfileData);
     </script>
 </body>
 </html>

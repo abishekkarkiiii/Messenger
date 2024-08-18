@@ -1,11 +1,9 @@
 package Software.Messenger.Configuration;
 
 import Software.Messenger.Controller.MainController;
-import Software.Messenger.Controller.UserController;
-import Software.Messenger.Entity.Message;
-import Software.Messenger.Entity.UserAccount;
+
 import Software.Messenger.Model.ChatModel;
-import Software.Messenger.Model.UserModel;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;

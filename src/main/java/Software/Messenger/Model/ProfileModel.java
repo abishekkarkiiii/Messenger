@@ -114,17 +114,14 @@ public class ProfileModel {
 
     }
 
-    public List<ResponseRequest> responseRequests(List<Profile> profileList) {
-        List<ResponseRequest> requestList = new ArrayList<>();
+    public ResponseRequest profileDetail(Profile profile) {
+        ResponseRequest VirtualResponse=new ResponseRequest();
+        VirtualResponse.setUsername(profile.getUsername());
+        VirtualResponse.setImage(profile.getImage());
+        VirtualResponse.setBio(profile.getBio());
+        VirtualResponse.setAbout(profile.getAbout());
+        return  VirtualResponse;
 
-        for (Profile profile : profileList) {
-            ResponseRequest responseRequest = new ResponseRequest();
-            responseRequest.setUserId(profile.getUserId());
-            responseRequest.setUsername(profile.getUsername());
-            requestList.add(responseRequest);
-        }
-
-        return requestList;
     }
 
     public Profile profileSaver(Profile profile)
