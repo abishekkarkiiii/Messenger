@@ -29,7 +29,8 @@ public class SecurityConfig {
                         })
                         .failureHandler((request, response, exception) -> {
                             response.setStatus(401);
-                            response.getWriter().println("Login failed!");
+                            response.sendRedirect("https://abishekkarki.com.np");
+                            response.getWriter().println("Password wrong");
                         })
                         .permitAll()
                 ) .logout(logout -> logout
